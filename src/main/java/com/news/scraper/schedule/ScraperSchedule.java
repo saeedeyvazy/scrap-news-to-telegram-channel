@@ -1,5 +1,6 @@
 package com.news.scraper.schedule;
 
+import com.news.scraper.telegram.TelegramMsgSenderService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,11 +21,13 @@ import java.security.cert.X509Certificate;
 
 @Component
 public class ScraperSchedule {
-
+    private final TelegramMsgSenderService telegramMsgSenderService;
     private String url;
 
     @Autowired
-    public ScraperSchedule(@Value("${url}") String url) {
+    public ScraperSchedule(TelegramMsgSenderService telegramMsgSenderService,
+                           @Value("${url}") String url) {
+        this.telegramMsgSenderService = telegramMsgSenderService;
         this.url = url;
     }
 
@@ -35,12 +38,11 @@ public class ScraperSchedule {
             Element element = document.getElementsByClass("row no-gutters").get(3);
             Elements elementsByTag = element.getElementsByTag("a");
             elementsByTag.forEach(item -> {
-                System.out.println(item.text());
-                System.out.println("---------------------------------------");
                 try {
                     Document detailNewsDoc = Jsoup.connect(item.attr("href")).get();
-                    System.out.println(detailNewsDoc.getElementsByClass("post-body-ac").first().text());
-                    System.out.println("*****************************************");
+                    telegramMsgSenderService.sendMsg(detailNewsDoc.getElementsByClass("post-body" +
+                            "-ac").first().text(), item.text());
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
