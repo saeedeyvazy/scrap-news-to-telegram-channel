@@ -1,10 +1,10 @@
 package com.news.scraper.telegram;
 
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -16,8 +16,10 @@ public class TelegramMsgSenderService {
         this.telegramApiUrl = telegramApiUrl;
     }
 
-    public void sendMsg(String msgText, String title) throws IOException {
-        String transformedTelegramApiUrl = telegramApiUrl.replace("[MESSAGE_TEXT]", msgText);
+    public void sendMsg(String msgText, String title, String photo) throws IOException {
+
+        String transformedTelegramApiUrl =  prettifyMessage(msgText, title, photo);
+
         URL url = new URL(transformedTelegramApiUrl);
         URLConnection conn = url.openConnection();
 
@@ -29,5 +31,11 @@ public class TelegramMsgSenderService {
             sb.append(inputLine);
         }
         String response = sb.toString();
+    }
+
+    private String prettifyMessage(String msgText, String title, String photoUrl) {
+        return telegramApiUrl.replace("[PHOTO]", photoUrl).replace("[MESSAGE_TEXT]", "%0A *" + title + "* %0A%0A" +  msgText);
+
+
     }
 }
