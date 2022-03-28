@@ -1,5 +1,7 @@
 package com.news.scraper.schedule;
 
+import com.news.scraper.domain.News;
+import com.news.scraper.repository.NewsRepository;
 import com.news.scraper.telegram.TelegramMsgSenderService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -7,6 +9,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -22,12 +25,14 @@ import java.security.cert.X509Certificate;
 @Component
 public class ScraperSchedule {
     private final TelegramMsgSenderService telegramMsgSenderService;
-    private String url;
+    private final NewsRepository newsRepository;
+    private final String url;
 
     @Autowired
     public ScraperSchedule(TelegramMsgSenderService telegramMsgSenderService,
-                           @Value("${url}") String url) {
+                           NewsRepository newsRepository, @Value("${url}") String url) {
         this.telegramMsgSenderService = telegramMsgSenderService;
+        this.newsRepository = newsRepository;
         this.url = url;
     }
 
@@ -39,11 +44,20 @@ public class ScraperSchedule {
             Elements elementsByTag = element.getElementsByTag("a");
             elementsByTag.forEach(item -> {
                 try {
-                    Document detailNewsDoc = Jsoup.connect(item.attr("href")).get();
-                    telegramMsgSenderService.sendMsg(detailNewsDoc.getElementsByClass("post-body" +
-                            "-ac").first().getElementsByTag("p").text(), item.text(), item.getElementsByTag("img").first().attr("src"));
+                    String newsDetailLink = item.attr("href");
+                    String title = item.text();
+                    String imageUrl = item.getElementsByTag("img").first().attr("src");
 
-                } catch (IOException e) {
+                    Document detailNewsDoc = Jsoup.connect(newsDetailLink).get();
+
+                    String text = detailNewsDoc.getElementsByClass("post-body" +
+                            "-ac").first().getElementsByTag("p").text();
+
+                    newsRepository.save(News.builder().hashVal(title).text(text).title(title).imageUrl(imageUrl).build());
+
+                    telegramMsgSenderService.sendMsg(text, title, imageUrl);
+
+                } catch (IOException | DataIntegrityViolationException e) {
                     e.printStackTrace();
                 }
             });
