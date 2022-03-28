@@ -41,7 +41,7 @@ public class ScraperSchedule {
                 try {
                     Document detailNewsDoc = Jsoup.connect(item.attr("href")).get();
                     telegramMsgSenderService.sendMsg(detailNewsDoc.getElementsByClass("post-body" +
-                            "-ac").first().text(), item.text());
+                            "-ac").first().getElementsByTag("p").text(), item.text());
 
                 } catch (IOException e) {
                     e.printStackTrace();

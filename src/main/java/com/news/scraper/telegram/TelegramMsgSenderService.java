@@ -17,8 +17,8 @@ public class TelegramMsgSenderService {
     }
 
     public void sendMsg(String msgText, String title) throws IOException {
-        telegramApiUrl = telegramApiUrl.replace("[MESSAGE_TEXT]", msgText);
-        URL url = new URL(telegramApiUrl);
+        String transformedTelegramApiUrl = telegramApiUrl.replace("[MESSAGE_TEXT]", msgText);
+        URL url = new URL(transformedTelegramApiUrl);
         URLConnection conn = url.openConnection();
 
         StringBuilder sb = new StringBuilder();
