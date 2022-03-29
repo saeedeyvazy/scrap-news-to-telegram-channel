@@ -14,5 +14,4 @@ public class ScraperApplication {
         SpringApplication.run(ScraperApplication.class, args);
     }
 
-
 }
