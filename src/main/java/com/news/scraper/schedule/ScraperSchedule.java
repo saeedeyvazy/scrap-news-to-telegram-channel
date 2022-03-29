@@ -3,6 +3,7 @@ package com.news.scraper.schedule;
 import com.news.scraper.domain.News;
 import com.news.scraper.repository.NewsRepository;
 import com.news.scraper.telegram.TelegramMsgSenderService;
+import com.news.scraper.util.HashMd5;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -53,12 +54,13 @@ public class ScraperSchedule {
                     String text = detailNewsDoc.getElementsByClass("post-body" +
                             "-ac").first().getElementsByTag("p").text();
 
-                    newsRepository.save(News.builder().hashVal(title).text(text).title(title).imageUrl(imageUrl).build());
+                    newsRepository.save(News.builder().hashVal(HashMd5.hash(title)).text(text).title(title).imageUrl(imageUrl).build());
 
                     telegramMsgSenderService.sendMsg(text, title, imageUrl);
 
                 } catch (IOException | DataIntegrityViolationException e) {
                     e.printStackTrace();
+                    return;
                 }
             });
         } catch (IOException e) {

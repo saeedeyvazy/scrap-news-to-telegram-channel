@@ -1,41 +1,30 @@
 package com.news.scraper.telegram;
 
-
+import com.news.scraper.ReplacementSentenceEnum;
+import com.news.scraper.api.TelegramFeignClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
-
 @Service
 public class TelegramMsgSenderService {
-    private String telegramApiUrl;
 
-    public TelegramMsgSenderService(@Value("${telegram.api}") String telegramApiUrl) {
-        this.telegramApiUrl = telegramApiUrl;
+    private final String chatId;
+    private final TelegramFeignClient telegramFeignClient;
+
+    public TelegramMsgSenderService(TelegramFeignClient telegramFeignClient,
+                                    @Value("${telegram.chat.id}") String chatId) {
+
+        this.telegramFeignClient = telegramFeignClient;
+        this.chatId = chatId;
+
     }
 
-    public void sendMsg(String msgText, String title, String photo) throws IOException {
-
-        String transformedTelegramApiUrl =  prettifyMessage(msgText, title, photo);
-
-        URL url = new URL(transformedTelegramApiUrl);
-        URLConnection conn = url.openConnection();
-
-        StringBuilder sb = new StringBuilder();
-        InputStream is = new BufferedInputStream(conn.getInputStream());
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        String inputLine = "";
-        while ((inputLine = br.readLine()) != null) {
-            sb.append(inputLine);
-        }
-        String response = sb.toString();
+    public void sendMsg(String msgText, String title, String photo) {
+        telegramFeignClient.sendPhotoWithCaption(chatId, prettifyMessage(msgText, title), photo, "MARKDOWN");
     }
 
-    private String prettifyMessage(String msgText, String title, String photoUrl) {
-        return telegramApiUrl.replace("[PHOTO]", photoUrl).replace("[MESSAGE_TEXT]", "%0A *" + title + "* %0A%0A" +  msgText);
-
-
+    private String prettifyMessage(String msgText, String title) {
+        msgText = msgText.replace(ReplacementSentenceEnum.SENT1.toString(), "").replace(ReplacementSentenceEnum.SENT2.toString(), "");;
+        return "\n*" + title + "*\n\n" + msgText;
     }
 }
