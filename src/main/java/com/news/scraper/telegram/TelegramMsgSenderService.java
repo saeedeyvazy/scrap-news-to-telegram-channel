@@ -5,6 +5,8 @@ import com.news.scraper.api.TelegramFeignClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+
 @Service
 public class TelegramMsgSenderService {
 
@@ -25,6 +27,8 @@ public class TelegramMsgSenderService {
 
     private String prettifyMessage(String msgText, String title) {
         msgText = msgText.replace(ReplacementSentenceEnum.SENT1.toString(), "").replace(ReplacementSentenceEnum.SENT2.toString(), "");;
-        return "\n*" + title + "*\n\n" + msgText;
+
+        msgText = String.join(".\n\n\uD83D\uDD39",msgText.split("\\."));
+        return "\n*" + title + "*\n\n \uD83D\uDD39 " + msgText + "\n\n @havades\\_ruz\\_iran";
     }
 }
