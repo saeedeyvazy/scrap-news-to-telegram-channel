@@ -1,5 +1,5 @@
 package com.news.scraper.util;
 
-public interface MessagePrettifier {
+public interface MessagePrettier {
      String prettifyMessage(String msgText, String title);
 }

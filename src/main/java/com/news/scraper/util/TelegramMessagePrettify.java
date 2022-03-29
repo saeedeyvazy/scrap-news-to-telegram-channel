@@ -4,7 +4,7 @@ import com.news.scraper.ReplacementSentenceEnum;
 import org.springframework.stereotype.Component;
 
 @Component("TelegramMessagePrettify")
-public class TelegramMessagePrettify implements MessagePrettifier{
+public class TelegramMessagePrettify implements MessagePrettier {
 
     @Override
     public  String prettifyMessage(String msgText, String title) {

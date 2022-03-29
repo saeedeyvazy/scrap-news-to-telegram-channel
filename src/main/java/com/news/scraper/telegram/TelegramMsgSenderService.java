@@ -1,7 +1,7 @@
 package com.news.scraper.telegram;
 
 import com.news.scraper.api.TelegramFeignClient;
-import com.news.scraper.util.MessagePrettifier;
+import com.news.scraper.util.MessagePrettier;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -11,11 +11,11 @@ public class TelegramMsgSenderService {
 
     private final String chatId;
     private final TelegramFeignClient telegramFeignClient;
-    private final MessagePrettifier messagePrettifier;
+    private final MessagePrettier messagePrettifier;
 
 
     public TelegramMsgSenderService(TelegramFeignClient telegramFeignClient,
-                                    @Value("${telegram.chat.id}") String chatId, @Qualifier("TelegramMessagePrettify") MessagePrettifier messagePrettifier) {
+                                    @Value("${telegram.chat.id}") String chatId, @Qualifier("TelegramMessagePrettify") MessagePrettier messagePrettifier) {
 
         this.telegramFeignClient = telegramFeignClient;
         this.chatId = chatId;
